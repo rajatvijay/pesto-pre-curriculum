@@ -1,12 +1,78 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Parcel Sandbox</title>
+    <title>Algorithm Visualiser</title>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="description" content="Algorithm Visualiser" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto+Condensed&display=swap"
+      rel="stylesheet"
+    />
   </head>
 
   <body>
-    <div id="app"></div>
+    <div id="app">
+      <h1>Algorithm Visualiser</h1>
+
+      <!-- Algos Available -->
+      <div id="algos">
+        <form>
+          <fieldset id="algoSelection">
+            <input
+              type="radio"
+              name="algo"
+              id="linear-search"
+              value="LINEAR_SEARCH"
+              checked
+            />
+            <label for="linear-search">Linear Search</label>
+
+            <input
+              type="radio"
+              name="algo"
+              id="binary-search"
+              value="BINARY_SEARCH"
+            />
+            <label for="binary-search">Binary Search</label>
+
+            <input
+              type="radio"
+              name="algo"
+              id="selection-sort"
+              value="SELECTION_SORT"
+            />
+            <label for="selection-sort">Selection Sort</label>
+
+            <input
+              type="radio"
+              name="algo"
+              id="bubble-sort"
+              value="BUBBLE_SORT"
+            />
+            <label for="bubble-sort">Bubble Sort</label>
+          </fieldset>
+
+          <fieldset id="userInputs">
+            <label for="data-size">Enter Data Size: </label>
+            <input required type="number" id="data-size" name="dataSize" />
+
+            <label for="search-number">Enter Number To Search: </label>
+            <input
+              required
+              type="number"
+              id="search-number"
+              name="searchNumber"
+            />
+            <input class="runAlgoButton" type="submit" value="RUN" />
+          </fieldset>
+        </form>
+      </div>
+
+      <!-- Main Visualiser -->
+      <div id="visualiser"></div>
+    </div>
 
     <script src="src/index.js"></script>
   </body>
