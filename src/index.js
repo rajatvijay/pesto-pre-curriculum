@@ -1,7 +1,12 @@
 import "./styles.css";
-import { generataeRandomArray } from "./utils";
+import { generataeRandomArray, generateElementId } from "./utils";
+import { linearSearch, binarySearch } from "./algorithms";
 
 const MAX_NUMBER = 200;
+
+const state = {
+  values: []
+};
 
 // Adds listener on algo input
 // to update the search input box required validation accordingly
@@ -29,9 +34,8 @@ const setupDataSizeListener = () => {
 };
 
 const setupWindowResizerListener = () => {
-  window.addEventListener("resize", (e) => {
-    const dataSizeInput = document.querySelector("#data-size");
-    updateVisualizer(dataSizeInput.value);
+  window.addEventListener("resize", () => {
+    state.values.length && createVisualizer(state.values);
   });
 };
 
@@ -39,6 +43,8 @@ const setupWindowResizerListener = () => {
 // the new visualiser based on the input value
 const updateVisualizer = (value) => {
   const randomArray = generataeRandomArray(value, MAX_NUMBER);
+  // Updating in the state;
+  state.values = randomArray;
   createVisualizer(randomArray);
 };
 
@@ -62,6 +68,7 @@ const createVisualizer = (values) => {
     node.style.height = `${calculateHeight(value, maxValue)}px`;
     node.setAttribute("class", "visualizerNode");
     node.setAttribute("title", value);
+    node.setAttribute("id", generateElementId(value, index));
 
     const textNode = document.createElement("span");
     textNode.setAttribute("class", "visualizerTextNode");
@@ -76,12 +83,35 @@ const createVisualizer = (values) => {
   container.replaceWith(newContainer);
 };
 
+const sortAndUpdateVisualiser = () => {
+  const values = [...state.values];
+  const sortedValues = values.sort();
+  state.values = sortedValues;
+  createVisualizer(state.values);
+};
+
+const setupFormSubmitListener = () => {
+  const form = document.querySelector("form");
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const algo = formData.get("algo");
+    if (algo === "LINEAR_SEARCH") {
+      linearSearch(state.values, formData.get("searchNumber"));
+    } else if (algo === "BINARY_SEARCH") {
+      sortAndUpdateVisualiser();
+      binarySearch(state.values, formData.get("searchNumber"));
+    }
+  });
+};
+
 // Orchestration function
 // to setup various listeners and initial computations
 function init() {
   makeSearchInputConditionallyRequired();
   setupDataSizeListener();
   setupWindowResizerListener();
+  setupFormSubmitListener();
 }
 
 /**
