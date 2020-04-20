@@ -85,8 +85,10 @@ const createVisualizer = (values) => {
 
 const sortAndUpdateVisualiser = () => {
   const values = [...state.values];
-  const sortedValues = values.sort();
+  console.log(state.values);
+  const sortedValues = values.sort((a, b) => a - b);
   state.values = sortedValues;
+  console.log(state.values);
   createVisualizer(state.values);
 };
 
