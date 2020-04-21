@@ -19,8 +19,15 @@ export function linearSearch(arr, value) {
   const search = () => {
     for (let i = 0; i < arr.length; i++) {
       const nodeId = idMap[arr[i]];
-      tracer.push(INSTRUCTIONS.HIGHLIGHT_SECONDARY, nodeId);
-      tracer.push(INSTRUCTIONS.CLEAR_HIGHLIGHT, nodeId);
+      if (i !== 0) {
+        tracer.push(
+          INSTRUCTIONS.CLEAR_AND_HIHGLIGHT_SECONDARY,
+          idMap[arr[i - 1]],
+          nodeId
+        );
+      } else {
+        tracer.push(INSTRUCTIONS.HIGHLIGHT_SECONDARY, nodeId);
+      }
       if (value == arr[i]) {
         tracer.push(INSTRUCTIONS.HIGHLIGHT_PRIMARY, nodeId);
         break;

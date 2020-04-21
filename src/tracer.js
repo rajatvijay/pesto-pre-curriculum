@@ -5,7 +5,8 @@ export const INSTRUCTIONS = {
   HIGHLIGHT_SECONDARY: "HIGHLIGHT_SECONDARY",
   CLEAR_SECONDARY: "CLEAR_SECONDARY",
   CLEAR_HIGHLIGHT: "CLEAR_HIGHLIGHT",
-  SWAP_NODES: "SWAP_NODES"
+  SWAP_NODES: "SWAP_NODES",
+  CLEAR_AND_HIHGLIGHT_SECONDARY: "CLEAR_AND_HIHGLIGHT_SECONDARY"
 };
 const instructionsQueue = [];
 const defaultConfig = {
@@ -50,6 +51,10 @@ const instructionsManual = {
 
     node2.parentNode.replaceChild(clonedNode1, node2);
     node1.parentNode.replaceChild(clonedNode2, node1);
+  },
+  [INSTRUCTIONS.CLEAR_AND_HIHGLIGHT_SECONDARY]: (clearId, highlightId) => {
+    instructionsManual[INSTRUCTIONS.CLEAR_SECONDARY](clearId);
+    instructionsManual[INSTRUCTIONS.HIGHLIGHT_SECONDARY](highlightId);
   }
 };
 
