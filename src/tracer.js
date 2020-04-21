@@ -1,7 +1,11 @@
+// TODO: Support an instruction to support clear and highglight next
 export const INSTRUCTIONS = {
-  HIGHLIGHT_SECONDARY: "HIGHLIGHT_SECONDARY",
   HIGHLIGHT_PRIMARY: "HIGHLIGHT_PRIMARY",
-  CLEAR_HIGHLIGHT: "CLEAR_HIGHLIGHT"
+  CLEAR_PRIMARY: "CLEAR_PRIMARY",
+  HIGHLIGHT_SECONDARY: "HIGHLIGHT_SECONDARY",
+  CLEAR_SECONDARY: "CLEAR_SECONDARY",
+  CLEAR_HIGHLIGHT: "CLEAR_HIGHLIGHT",
+  SWAP_NODES: "SWAP_NODES"
 };
 const instructionsQueue = [];
 const defaultConfig = {
@@ -10,60 +14,66 @@ const defaultConfig = {
 const SECONDARY_CLASSNAME = `secondaryCurrentVisualizerNode`;
 const PRIMARY_CLASSNAME = `primaryCurrentVisualizerNode`;
 
-// utils
-const pipe = (...fns) => (input) =>
-  fns.reduce((output, fn) => fn(output), input);
-
-const trace = (label) => (value) =>
-  pipe(
-    () => console.log(label, value),
-    () => value
-  )();
+const trace = (label) => (value) => {
+  window.debug && console.log(label, value);
+  return value;
+};
+const getDOMNode = (id) => document.querySelector(`#${id}`);
 
 const instructionsManual = {
-  [INSTRUCTIONS.HIGHLIGHT_PRIMARY]: (id) => {
-    const domItem = document.querySelector(`#${id}`);
-    domItem.classList.add(PRIMARY_CLASSNAME);
+  [INSTRUCTIONS.HIGHLIGHT_PRIMARY]: (elementId) => {
+    const node = getDOMNode(elementId);
+    node.classList.add(PRIMARY_CLASSNAME);
   },
-  [INSTRUCTIONS.HIGHLIGHT_SECONDARY]: (id) => {
-    const domItem = document.querySelector(`#${id}`);
-    domItem.classList.add(SECONDARY_CLASSNAME);
+  [INSTRUCTIONS.CLEAR_PRIMARY]: (elementId) => {
+    const node = getDOMNode(elementId);
+    node.classList.remove(PRIMARY_CLASSNAME);
   },
-  [INSTRUCTIONS.CLEAR_HIGHLIGHT]: (id) => {
-    const domItem = document.querySelector(`#${id}`);
-    domItem.classList.remove(PRIMARY_CLASSNAME);
-    domItem.classList.remove(SECONDARY_CLASSNAME);
+  [INSTRUCTIONS.HIGHLIGHT_SECONDARY]: (elementId) => {
+    const node = getDOMNode(elementId);
+    node.classList.add(SECONDARY_CLASSNAME);
+  },
+  [INSTRUCTIONS.CLEAR_SECONDARY]: (elementId) => {
+    const node = getDOMNode(elementId);
+    node.classList.remove(SECONDARY_CLASSNAME);
+  },
+  [INSTRUCTIONS.CLEAR_HIGHLIGHT]: (elementId) => {
+    const node = getDOMNode(elementId);
+    node.classList.remove(PRIMARY_CLASSNAME);
+    node.classList.remove(SECONDARY_CLASSNAME);
+  },
+  [INSTRUCTIONS.SWAP_NODES]: (element1Id, element2Id) => {
+    const node1 = getDOMNode(element1Id);
+    const node2 = getDOMNode(element2Id);
+    const clonedNode1 = node1.cloneNode(true);
+    const clonedNode2 = node2.cloneNode(true);
+
+    node2.parentNode.replaceChild(clonedNode1, node2);
+    node1.parentNode.replaceChild(clonedNode2, node1);
   }
 };
 
-const cleanup = () => (instructionsQueue.length = 0);
-const perform = (instruction) => (id) =>
-  pipe(
-    () => trace("perform")(instruction),
-    () => trace("perform")(instructionsManual[instruction]),
-    () =>
-      trace("perform")(instructionsManual[INSTRUCTIONS.HIGHLIGHT_SECONDARY]),
-    () => trace("perform")(instructionsManual["HIGHLIGHT_SECONDARY"]),
-    () => instructionsManual[instruction](id)
-  )();
+const perform = (instructionName, ...elements) => {
+  trace("PERFORM:")(instructionName);
+  instructionsManual[instructionName](...elements);
+};
+const clearQueue = () => (instructionsQueue.length = 0);
 
 export const init = (userConfig) => {
+  clearQueue();
   const config = { ...defaultConfig, ...userConfig };
-  cleanup();
-  const timer = setInterval(
-    pipe(
-      () => trace("instructionsQueue")(JSON.stringify(instructionsQueue)),
-      () => instructionsQueue.shift(),
-      trace("instruction"),
-      ({ instruction, id } = {}) =>
-        instruction ? perform(instruction)(id) : null
-    ),
-    config.delayMs
-  );
-  const clearRunner = () => timer && clearInterval(timer);
+  const timer = setInterval(() => {
+    const instruction = instructionsQueue.shift();
+    if (instruction) {
+      perform(instruction.instructionName, ...instruction.elements);
+    }
+    if (!instructionsQueue.length) {
+      timer && clearInterval(timer);
+    }
+  }, config.delayMs);
   return {
-    push: (instruction, { id }) => instructionsQueue.push({ instruction, id }),
-    stop: cleanup,
-    clean: pipe(cleanup, clearRunner)
+    push: (instructionName, ...elements) =>
+      instructionsQueue.push({ instructionName, elements }),
+    logQueue: () => trace("QUEUE")(JSON.stringify(instructionsQueue))
   };
 };

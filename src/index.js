@@ -1,6 +1,11 @@
 import "./styles.css";
 import { generataeRandomArray, generateElementId } from "./utils";
-import { linearSearch, binarySearch } from "./algorithms";
+import {
+  linearSearch,
+  binarySearch,
+  selectionSort,
+  bubbleSort
+} from "./algorithms";
 
 const MAX_NUMBER = 200;
 
@@ -10,11 +15,11 @@ const state = {
 
 // Adds listener on algo input
 // to update the search input box required validation accordingly
+// TODO: Update when page refresesh, maybe?
 const makeSearchInputConditionallyRequired = () => {
   const algoSelector = document.querySelector("#algoSelection");
   const searchValueInput = document.querySelector("#search-number");
   algoSelector.addEventListener("change", (e) => {
-    console.log("init", e.target.value, e.target.values);
     if (["LINEAR_SEARCH", "BINARY_SEARCH"].includes(e.target.value)) {
       searchValueInput.setAttribute("required", true);
     } else {
@@ -25,10 +30,10 @@ const makeSearchInputConditionallyRequired = () => {
 
 // Adds listener to data-size input
 // to create the visualizer
+// TODO: Update when page refresesh, maybe?
 const setupDataSizeListener = () => {
   const dataSizeInput = document.querySelector("#data-size");
   dataSizeInput.addEventListener("change", (e) => {
-    console.log("data size  change", e.target.value);
     updateVisualizer(e.target.value);
   });
 };
@@ -85,10 +90,8 @@ const createVisualizer = (values) => {
 
 const sortAndUpdateVisualiser = () => {
   const values = [...state.values];
-  console.log(state.values);
   const sortedValues = values.sort((a, b) => a - b);
   state.values = sortedValues;
-  console.log(state.values);
   createVisualizer(state.values);
 };
 
@@ -103,6 +106,10 @@ const setupFormSubmitListener = () => {
     } else if (algo === "BINARY_SEARCH") {
       sortAndUpdateVisualiser();
       binarySearch(state.values, formData.get("searchNumber"));
+    } else if (algo === "SELECTION_SORT") {
+      selectionSort(state.values);
+    } else if (algo === "BUBBLE_SORT") {
+      bubbleSort(state.values);
     }
   });
 };
@@ -112,16 +119,16 @@ const setupFormSubmitListener = () => {
 function init() {
   makeSearchInputConditionallyRequired();
   setupDataSizeListener();
-  setupWindowResizerListener();
+  // setupWindowResizerListener();
   setupFormSubmitListener();
 }
 
 /**
  * Steps
  * - [x] Update the visualiser when the user enters the new data size
- * - [ ] Create tracer with number highlight functionality (primary, secondary) for searching
- * - [ ] Add number shifting functionality in the tracer for sorting algorithms
- * - [ ] Write searching algorithms using the tracer
- * - [ ] Write sorting algorithsm using the tracer
+ * - [x] Create tracer with number highlight functionality (primary, secondary) for searching
+ * - [x] Add number shifting functionality in the tracer for sorting algorithms
+ * - [x] Write searching algorithms using the tracer
+ * - [x] Write sorting algorithsm using the tracer
  */
 init();
